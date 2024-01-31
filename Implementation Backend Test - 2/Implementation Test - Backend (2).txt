@@ -1,0 +1,173 @@
+-- Table employees
+-- Create table employees
+CREATE TABLE employees (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  job_title VARCHAR(255) NOT NULL,
+  salary INT NOT NULL,
+  department VARCHAR(255) NOT NULL,
+  joined_date DATE NOT NULL,
+  PRIMARY KEY (id)
+);
+
+-- Insert data into table employees
+INSERT INTO employees (
+  name,
+  job_title,
+  salary,
+  department,
+  joined_date
+) VALUES (
+  'John Smith',
+  'Manager',
+  60000,
+  'Sales',
+  '2022-01-15'
+), (
+  'Jane Doe',
+  'Analyst',
+  45000,
+  'Marketing',
+  '2022-02-01'
+), (
+  'Mike Brown',
+  'Developer',
+  55000,
+  'IT',
+  '2022-03-10'
+), (
+  'Anna Lee',
+  'Manager',
+  65000,
+  'Sales',
+  '2021-12-05'
+), (
+  'Mark Wong',
+  'Developer',
+  50000,
+  'IT',
+  '2023-05-20'
+), (
+  'Emily Chen',
+  'Analyst',
+  48000,
+  'Marketing',
+  '2023-06-02'
+);
+
+-- Table sales_data
+-- Create table sales_data
+CREATE TABLE sales_data (
+  id INT NOT NULL AUTO_INCREMENT,
+  sales_id INT NOT NULL,
+  employee_id INT NOT NULL,
+  sales INT NOT NULL,
+  PRIMARY KEY (id)
+);
+
+-- Insert data into table sales_data
+INSERT INTO sales_data (
+  sales_id,
+  employee_id,
+  sales
+) VALUES (
+  1,
+  1,
+  15000
+), (
+  2,
+  2,
+  12000
+), (
+  3,
+  3,
+  18000
+), (
+  4,
+  1,
+  20000
+), (
+  5,
+  4,
+  22000
+), (
+  6,
+  5,
+  19000
+), (
+  7,
+  6,
+  13000
+), (
+  8,
+  2,
+  14000
+);
+
+-- Soal 1
+SELECT *
+FROM employees;
+
+-- Soal 2
+SELECT COUNT(*)
+FROM employees
+WHERE job_title = 'Manager';
+
+-- Soal 3
+SELECT name, salary
+FROM employees
+WHERE department IN ('Sales', 'Marketing');
+
+-- Soal 4
+SELECT AVG(salary)
+FROM employees
+WHERE joined_date > CURDATE() - INTERVAL 5 YEAR;
+
+-- Soal 5
+SELECT
+  sd.employee_id,
+  e.name,
+  SUM(sd.sales) AS total_sales
+FROM sales_data sd
+JOIN employees e ON e.id = sd.employee_id
+GROUP BY sd.employee_id
+ORDER BY total_sales DESC
+LIMIT 5;
+
+-- Soal 6
+SELECT
+  id,
+  name,
+  salary,
+  (
+    SELECT AVG(salary)
+    FROM employees
+  ) AS average_salary
+FROM employees
+GROUP BY department
+HAVING AVG(salary) > (
+    SELECT AVG(salary)
+    FROM employees
+  );
+
+-- Soal 7
+SELECT
+  sd.employee_id,
+  e.name,
+  sd.sales,
+  ROW_NUMBER() OVER (ORDER BY sd.sales DESC) AS ranking
+FROM sales_data sd
+JOIN employees e ON e.id = sd.employee_id;
+
+-- Soal 8
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_employees_by_department`(
+  IN deptName VARCHAR(255)
+)
+BEGIN
+  SELECT
+    id,
+    name,
+    salary
+  FROM employees
+  WHERE department = deptName;
+END
